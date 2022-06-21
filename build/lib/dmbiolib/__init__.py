@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-__version__='0.2.5'
-last_update='2022-06-09'
+__version__='0.2.21'
+last_update='2022-06-22'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,glob,os,gzip,time,math,argparse
+from collections import defaultdict
 import numpy as np
+from matplotlib import pyplot as plt
 
 ambiguous="ryswkmbdhvn"
 aa="ARNDCQEGHILKMFPSTWYV"
@@ -103,6 +105,35 @@ def entropy(matrix):
         score+=H
     return score
 
+def find_read_files():
+    rfiles=glob.glob('*.f*q.gz')
+    x=defaultdict(int)
+    for n in rfiles:
+        for m in ('_R1','_R2','_1.','_2.'):
+            if m in n:
+                x[m]+=1
+    for (a,b) in (('_R1','_R2'),('_1.','_2.')):
+        if x[a]>0 and x[a]==x[b] and x[a]==len(rfiles)/2:
+            break
+    else:
+        a,b='',''
+    y=[n for n in rfiles]
+    if a:
+        y=[n.replace(a,'*') for n in rfiles if a in n]
+    for i in range(len(y)):
+        w=y[i].replace('*','_')
+        if '-' in w:
+            z=w[:w.find('-')]
+        elif '_' in w:
+            z=w[:w.find('_')]
+        else:
+            z=w[:w.find('.')]
+        x=y[i]
+        if a:
+            x=y[i].replace('*',a)+' '+y[i].replace('*',b)
+        y[i]=z+' '+x
+    return y
+
 def fsize(filename):
     return os.path.getsize(filename)
 
@@ -166,11 +197,13 @@ def getread(f,y,counter):
             l=f.readline().strip()
             if not z:
                 name=l
+            if z==1:
+                seq=l.lower()
             z+=1
     if not l:
         return l,f,counter,name
     counter+=1
-    return l.lower(),f,counter,name
+    return seq,f,counter,name
 
 def initreadfile(rfile):
     f=open_read_file(rfile)
@@ -228,7 +261,7 @@ def open_read_file(x):
 def override(func):
     class OverrideAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string):
-            func()
+            func
             parser.exit()
     return OverrideAction
 
@@ -259,7 +292,7 @@ def pr2(f,t):
 def progress_check(c,show,t):
     if c in show:
         k=show[c]
-        print('\r  '+t+' '*(4-len(k))+k+'%',end='')
+        print('\r  '+t+' '*(8-len(k))+k+'%',end='')
 
 def progress_end():
     print('\b\b\b\b\b\b100.0%\n')
@@ -270,7 +303,7 @@ def progress_start(nr,t):
     z=np.arange(0,100,0.1)
     y=[str(round(n,1)) for n in z]
     show=dict(zip(x,y))
-    print('\n  '+t+'     0.0%',end='')
+    print('  '+t+'     0.0%',end='')
     return show
 
 def readcount(R,fail):
@@ -296,7 +329,7 @@ def rename(name):
         os.rename(name,n)
         print('\n  Existing '+name+' file was renamed as '+n+'\n  Creating new '+name+' file...\n')
 
-def shortest_probe(seqs,lim,t):
+def shortest_probe(seqs,lim,host,t):
     if lim<1:
         lim=1
     fail=''
@@ -304,13 +337,17 @@ def shortest_probe(seqs,lim,t):
     x=min([len(k) for k in seqs])
     y=set([k[-x:] for k in seqs])
     if len(y)!=len(seqs):
-        fail='\n  Duplicate '+t+' found! '+t[-1:].upper()+t[1:]+'s must all be different when trimmed to their maximal common size!'
+        fail='\n  Duplicate '+t+' found! '+t[0].upper()+t[1:]+'s must all be different when trimmed to their maximal common size!'
+    if host and len([k for k in y if k in host+host[:x-1]]):
+        fail+='\n  '+t[0].upper()+t[1:]+' found in the host genome!'
     if not fail:
         q=lim
-        while len(y)!=len(seqs):
-            q+=1
+        while True:
             y=set([k[-q:] for k in seqs])
+            if len(y)==len(seqs) and max([k.count(p) for k in seqs for p in y])==1:
+                break
+            q+=1
     return q,fail
 
-def version():
-    print('\n  Project: '+sys.argv[0][max(sys.argv[0].rfind('\\'),sys.argv[0].rfind('/'))+1:-3]+'\n  version: '+__version__+'\n  Latest update: '+last_update+'\n  Author: '+author+'\n  License: GNU General Public v3 (GPLv3)\n')
+def version(version,update,author,license):
+    print('\n  Project: '+sys.argv[0][max(sys.argv[0].rfind('\\'),sys.argv[0].rfind('/'))+1:-3]+'\n  version: '+version+'\n  Latest update: '+update+'\n  Author: '+author+'\n  License: '+license+'\n')
