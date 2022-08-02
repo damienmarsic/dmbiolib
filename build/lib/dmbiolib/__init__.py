@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-__version__='0.2.21'
-last_update='2022-06-22'
+__version__='0.2.40'
+last_update='2022-08-02'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
-import sys,glob,os,gzip,time,math,argparse
+import sys,os,gzip,time,math
+from glob import glob
 from collections import defaultdict
 import numpy as np
 from matplotlib import pyplot as plt
@@ -11,6 +12,84 @@ from matplotlib import pyplot as plt
 ambiguous="ryswkmbdhvn"
 aa="ARNDCQEGHILKMFPSTWYV"
 IUPAC=[set('ag'),set('ct'),set('gc'),set('at'),set('gt'),set('ac'),set('cgt'),set('agt'),set('act'),set('acg'),set('atgc')]
+gcode={
+'ggg':'G','gga':'G','ggc':'G','ggt':'G','gag':'E','gaa':'E','gac':'D','gat':'D','gcg':'A', 'gca':'A', 'gcc':'A', 'gct':'A', 'gtg':'V', 'gta':'V', 'gtc':'V', 'gtt':'V',
+'agg':'R','aga':'R','agc':'S','agt':'S','aag':'K','aaa':'K','aac':'N','aat':'N','acg':'T', 'aca':'T', 'acc':'T', 'act':'T', 'atg':'M', 'ata':'I', 'atc':'I', 'att':'I',
+'cgg':'R','cga':'R','cgc':'R','cgt':'R','cag':'Q','caa':'Q','cac':'H','cat':'H','ccg':'P', 'cca':'P', 'ccc':'P', 'cct':'P', 'ctg':'L', 'cta':'L', 'ctc':'L', 'ctt':'L',
+'tgg':'W','tga':'*','tgc':'C','tgt':'C','tag':'*','taa':'*','tac':'Y','tat':'Y','tcg':'S', 'tca':'S', 'tcc':'S', 'tct':'S', 'ttg':'L', 'tta':'L', 'ttc':'F', 'ttt':'F'}
+bpairs={'a':'t','c':'g','g':'c','t':'a'}
+
+def aln2seq(fn,type,full,ref):
+    fail=''
+    seq={}
+    if ref:
+        ref,fail=getfasta(ref,aa,aa,False)
+        if fail:
+            return seq,fail
+        ref=list(ref.values())[0]
+    with open(fn,'r') as f:
+        x=f.read().strip().split('\n')
+    x=[k for k in x if k]
+    for i in range(len(x)):
+        if x[i].replace(' ','').isdigit():
+            q=x[i].split()
+            break
+    else:
+        fail+='\n  File format not recognized!'
+    q=[int(k) for k in q]
+    x=x[i+1:]
+    if not x or '.' in x[0]:
+        fail+='\n  No reference sequence!'
+    else:
+        w=x[0].split()[1:]
+        wt=x[0].split()[0]
+    x=x[1:]
+    if len(q)!=len(w):
+        fail+='\n  Number of indices is different from number of regions!'
+    if not x:
+        fail+='\n  No sequence found!'
+    for n in x:
+        l=n.split()
+        y=l[0]
+        z=l[1:]
+        if y in seq:
+            fail+='\n  Duplicate sequence name '+y+' found in file '+fn+'! All sequences must have a different name!'
+        if len(z)!=len(w):
+            fail+='\n  Number of regions of sequence '+y+' is different from that of reference!'
+            continue
+        for i in range(len(z)):
+            t=''
+            for j in range(len(z[i])):
+                if z[i][j]=='.':
+                    t+=w[i][j]
+                else:
+                    t+=z[i][j]
+            z[i]=t
+        if full:
+            t=''
+            t=ref[:q[0]]
+            for i in range(len(q)):
+                t+=z[i]
+                if i==len(q)-1:
+                    a=len(ref)
+                else:
+                    a=q[i+1]
+                t+=ref[q[i]+len(z[i]):a]
+            z=t
+        else:
+            z=','.join(z)
+        if type==aa:
+            z=z.upper()
+        else:
+            z=z.lower()
+        t,req=check_seq(z.replace(',',''),type,type)
+        if not t:
+            fail+='\n  Sequence '+y+' in '+fn+' contains invalid characters!'
+        if not req:
+            fail+='\n  Sequence '+y+' in '+fn+' does not contain expected characters!'
+        if y and not fail:
+            seq[y]=z
+    return seq,fail,wt
 
 def check_file(filename,strict):
     try:
@@ -59,6 +138,9 @@ def check_read_file(x):
 def check_seq(seq,type,required):
     t=True
     req=False
+    seq=seq.lower()
+    type=type.lower()
+    required=required.lower()
     for i in seq:
         if i not in type:
             t=False
@@ -74,6 +156,26 @@ def check_sync(l1,l2):
     elif l1[:l1.find(' ')]!=l2[:l2.find(' ')]:
         fail='\n  R1 and R2 reads are not synchronized! Please use raw read files!'
     return fail
+
+def complexity(seq):
+    i=0
+    t=[]
+    while i+3<=len(seq):
+        t.append(defaultdict(int))
+        x=seq[i:i+3]
+        i+=3
+        c=[[],[],[]]
+        for n in range(3):
+            if x[n] in ambiguous:
+                for m in IUPAC[ambiguous.index(x[n])]:
+                    c[n].append(m)
+            else:
+                c[n].append(x[n])
+        for n1 in c[0]:
+            for n2 in c[1]:
+                for n3 in c[2]:
+                    t[-1][gcode[n1+n2+n3]]+=1
+    return t
 
 def compress(seq):
     x=''
@@ -106,7 +208,7 @@ def entropy(matrix):
     return score
 
 def find_read_files():
-    rfiles=glob.glob('*.f*q.gz')
+    rfiles=glob('*.f*q.gz')
     x=defaultdict(int)
     for n in rfiles:
         for m in ('_R1','_R2','_1.','_2.'):
@@ -120,18 +222,27 @@ def find_read_files():
     y=[n for n in rfiles]
     if a:
         y=[n.replace(a,'*') for n in rfiles if a in n]
+    q=0
+    while True:
+        test=[]
+        for i in range(len(y)):
+            w=y[i].replace('*','_')
+            if '-' in w[q:]:
+                z=w.find('-',q)
+            elif '_' in w[q:]:
+                z=w.find('_',q)
+            else:
+                z=w.find('.',q)
+            test.append(w[:z])
+        if len(set(test))==len(y):
+            break
+        q=z+1
     for i in range(len(y)):
-        w=y[i].replace('*','_')
-        if '-' in w:
-            z=w[:w.find('-')]
-        elif '_' in w:
-            z=w[:w.find('_')]
-        else:
-            z=w[:w.find('.')]
         x=y[i]
         if a:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
-        y[i]=z+' '+x
+        y[i]=test[i]+' '+x
+    y.sort()
     return y
 
 def fsize(filename):
@@ -155,8 +266,8 @@ def getfasta(fn,type,required,multi):
     for n in x:
         if not n:
             continue
-        y=n[:n.find('\n')]
-        y=y[:max(len(y),y.find(' '))]
+        y=n[:n.find('\n')]+' '
+        y=y[:y.find(' ')]
         if not y and multi:
             fail+='\n  Sequence with no name found in file '+fn+'! All sequences must have a name!'
         z=n[n.find('\n'):]
@@ -222,8 +333,7 @@ def initreadfile(rfile):
     else:
         y=4
     f.seek(0)
-    counter=0
-    return f,y,counter
+    return f,y
 
 def lncount(f):
     def _make_gen(reader):
@@ -257,13 +367,6 @@ def open_read_file(x):
     else:
         f=open(x,'r')
     return f
-
-def override(func):
-    class OverrideAction(argparse.Action):
-        def __call__(self, parser, namespace, values, option_string):
-            func
-            parser.exit()
-    return OverrideAction
 
 def plot_end(fig,counter,x,format,mppdf):
     plt.legend()
@@ -323,11 +426,16 @@ def readcount(R,fail):
     return(nr,fail)
 
 def rename(name):
-    if glob.glob(name):
+    if glob(name):
         t=str(time.time())
         n=name[:name.rfind('.')]+'-'+t[:t.find('.')]+name[name.rfind('.'):]
         os.rename(name,n)
         print('\n  Existing '+name+' file was renamed as '+n+'\n  Creating new '+name+' file...\n')
+
+def revcomp(seq):
+    rs=(seq[::-1]).lower()
+    x=''.join([bpairs.get(rs[i], 'X') for i in range(len(seq))])
+    return x
 
 def shortest_probe(seqs,lim,host,t):
     if lim<1:
@@ -344,10 +452,13 @@ def shortest_probe(seqs,lim,host,t):
         q=lim
         while True:
             y=set([k[-q:] for k in seqs])
-            if len(y)==len(seqs) and max([k.count(p) for k in seqs for p in y])==1:
+            if len(y)==len(seqs) and max([k.count(p) for k in seqs for p in y])==1 and not len([k for k in y if k in host+host[:q-1]]):
                 break
             q+=1
     return q,fail
 
-def version(version,update,author,license):
-    print('\n  Project: '+sys.argv[0][max(sys.argv[0].rfind('\\'),sys.argv[0].rfind('/'))+1:-3]+'\n  version: '+version+'\n  Latest update: '+update+'\n  Author: '+author+'\n  License: '+license+'\n')
+def transl(seq):
+    seq=seq.lower()
+    x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
+    return x
+
