@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.2.40'
-last_update='2022-08-02'
+__version__='0.2.44'
+last_update='2022-08-23'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -207,8 +207,15 @@ def entropy(matrix):
         score+=H
     return score
 
+def exprange(a,b,c):
+    while a<b:
+        yield a
+        a*=c
+
 def find_read_files():
     rfiles=glob('*.f*q.gz')
+    if not rfiles:
+        return {}
     x=defaultdict(int)
     for n in rfiles:
         for m in ('_R1','_R2','_1.','_2.'):
@@ -222,26 +229,20 @@ def find_read_files():
     y=[n for n in rfiles]
     if a:
         y=[n.replace(a,'*') for n in rfiles if a in n]
-    q=0
-    while True:
-        test=[]
-        for i in range(len(y)):
-            w=y[i].replace('*','_')
-            if '-' in w[q:]:
-                z=w.find('-',q)
-            elif '_' in w[q:]:
-                z=w.find('_',q)
-            else:
-                z=w.find('.',q)
-            test.append(w[:z])
-        if len(set(test))==len(y):
+    q=-1
+    for i in range(1,len(y[0])):
+        if len(set([k[-i:] for k in y]))>1:
+            while True:
+                i-=1
+                if y[0][-i] in ('-','_','.'):
+                    break
+            q=-i
             break
-        q=z+1
     for i in range(len(y)):
         x=y[i]
         if a:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
-        y[i]=test[i]+' '+x
+        y[i]=y[i][:q]+' '+x
     y.sort()
     return y
 
@@ -368,24 +369,22 @@ def open_read_file(x):
         f=open(x,'r')
     return f
 
-def plot_end(fig,counter,x,format,mppdf):
+def plot_end(fig,name,format,mppdf):
     plt.legend()
     fig.subplots_adjust(bottom=0.15)
     fig.tight_layout()
     if format:
-        counter+=1
-        g=x+str(counter)+'.'+format
+        g=name+'.'+format
         plt.savefig(g,dpi=600)
         print('  Figure was saved into file: '+g+'\n')
     else:
         mppdf.savefig()
     plt.close()
-    return counter
 
-def plot_start(x,y):
-    colors=plt.get_cmap(x)
+def plot_start(x,y,z):
+    colors=plt.get_cmap(x,y)
     fig=plt.figure(figsize=(12,6.75))
-    plt.title(y,size=15,weight='roman')
+    plt.title(z,size=15,weight='roman')
     return colors,fig
 
 def pr2(f,t):
@@ -457,8 +456,29 @@ def shortest_probe(seqs,lim,host,t):
             q+=1
     return q,fail
 
+def sortfiles(x):
+    x.sort()
+    y=[k for k in x if not any(i.isdigit() for i in k[:k.rfind('--')])]
+    x=[k for k in x if not k in y]
+    z=[(int(''.join([n for n in k if n.isdigit()])),k) for k in x]
+    for n in sorted(z):
+        y.append(n[1])
+    return y
+    
 def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
+
+
+
+
+
+
+
+
+
+
+
+
 
