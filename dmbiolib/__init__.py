@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.2.44'
-last_update='2022-08-23'
+__version__='0.2.47'
+last_update='2022-08-29'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -185,6 +185,26 @@ def compress(seq):
         x+=n
     return x
 
+def csv2list(fname):
+    with open(fname,'r') as f:
+        x=f.read().strip().split('\n')
+    return [n.split(',') for n in x]
+
+def dict2csv(fname,keys,dic,header,descr,r):
+    f=open(fname,'w')
+    if not keys:
+        keys=dic.keys()
+    if header:
+        if isinstance(header,list) or isinstance(header,tuple):
+            header=','.join(header)
+        f.write(str(header))
+    for m in keys:
+        f.write(str(m)+','+str(dic[m])+'\n')
+    f.write('\n')
+    f.close()
+    if descr:
+        pr2(r,'\n  '+descr+' was saved into file: '+fname)
+
 def diff(seqs):
     z=len(seqs[0])
     x=[(seqs[i],seqs[j]) for i in range(len(seqs)) for j in range(i+1, len(seqs))]
@@ -243,8 +263,7 @@ def find_read_files():
         if a:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
         y[i]=y[i][:q]+' '+x
-    y.sort()
-    return y
+    return sortfiles(y,' ')
 
 def fsize(filename):
     return os.path.getsize(filename)
@@ -370,7 +389,6 @@ def open_read_file(x):
     return f
 
 def plot_end(fig,name,format,mppdf):
-    plt.legend()
     fig.subplots_adjust(bottom=0.15)
     fig.tight_layout()
     if format:
@@ -389,7 +407,8 @@ def plot_start(x,y,z):
 
 def pr2(f,t):
     print(t)
-    f.write(t+'\n')
+    if f:
+        f.write(t+'\n')
 
 def progress_check(c,show,t):
     if c in show:
@@ -456,25 +475,21 @@ def shortest_probe(seqs,lim,host,t):
             q+=1
     return q,fail
 
-def sortfiles(x):
+def sortfiles(x,str):
     x.sort()
-    y=[k for k in x if not any(i.isdigit() for i in k[:k.rfind('--')])]
+    if not str:
+        str='.'
+    y=[k for k in x if not any(i.isdigit() for i in k[:k.rfind(str)])]
     x=[k for k in x if not k in y]
     z=[(int(''.join([n for n in k if n.isdigit()])),k) for k in x]
     for n in sorted(z):
         y.append(n[1])
     return y
-    
+
 def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
-
-
-
-
-
-
 
 
 
