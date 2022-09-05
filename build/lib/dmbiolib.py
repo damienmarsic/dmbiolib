@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.2.54'
-last_update='2022-09-03'
+__version__='0.2.55'
+last_update='2022-09-05'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -252,34 +252,27 @@ def find_read_files():
             if m in n:
                 x[m]+=1
     for (a,b) in (('_R1','_R2'),('_1.','_2.')):
-        if x[a]>0 and x[a]==x[b] and x[a]==len(rfiles)/2:
+        if x[a]>0 and x[a]==x[b]:
             break
     else:
         a,b='',''
-    y=[n for n in rfiles]
-    if a:
-        y=[n.replace(a,'*') for n in rfiles if a in n]
-    if len(y)==1:
-        q=len(y[0])
-        for n in ('-','_','.','*'):
-            if n in y[0][:q]:
-                q=y[0][:q].find(n)
-    else:
-        for i in range(1,len(y[0])):
-            if len(set([k[-i:] for k in y]))>1:
-                while True:
-                    i-=1
-                    if y[0][-i] in ('-','_','.','*'):
-                        break
-                q=-i
-                break
-    if '-' in y[0][:q] and len(set([k[:k[:q].rfind('-')] for k in y]))==len(y):
-        q=y[0][:q].rfind('-')
+    y=[n.replace(a,'*') for n in rfiles if a and a in n]+[n for n in rfiles if a not in n and b not in n]
+    z=[0]*len(y)
+    while True:
+        for i in range(len(y)):
+            x=len(y[i])
+            for n in ('-','_','.','*'):
+                p=y[i].find(n,z[i]+1)
+                if p>0 and p<x:
+                    x=p
+            z[i]=x
+        if len(set([y[i][:z[i]] for i in range(len(y))]))==len(set(y)):
+            break
     for i in range(len(y)):
         x=y[i]
-        if a:
+        if a and '*' in x:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
-        y[i]=y[i][:q]+' '+x
+        y[i]=y[i][:z[i]]+' '+x
     return sortfiles(y,' ')
 
 def fsize(filename):
@@ -507,10 +500,5 @@ def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
-
-
-
-
-
 
 

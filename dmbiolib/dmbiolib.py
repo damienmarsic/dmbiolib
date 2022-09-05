@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.2.47'
-last_update='2022-08-29'
+__version__='0.2.55'
+last_update='2022-09-05'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -197,9 +197,12 @@ def dict2csv(fname,keys,dic,header,descr,r):
     if header:
         if isinstance(header,list) or isinstance(header,tuple):
             header=','.join(header)
-        f.write(str(header))
+        f.write(str(header)+'\n')
     for m in keys:
-        f.write(str(m)+','+str(dic[m])+'\n')
+        x=dic[m]
+        if isinstance(x,list) or isinstance(x,tuple):
+            x=','.join([str(k) for k in x])
+        f.write(str(m)+','+str(x)+'\n')
     f.write('\n')
     f.close()
     if descr:
@@ -215,6 +218,13 @@ def diff(seqs):
                 y+=1
         z=min(z,y)
     return z
+
+def dirname():
+    x=os.getcwd()
+    for n in ('\\','/'):
+        if n in x:
+            x=x[x.rfind(n)+1:]
+    return x
 
 def entropy(matrix):
     score=0
@@ -233,7 +243,7 @@ def exprange(a,b,c):
         a*=c
 
 def find_read_files():
-    rfiles=glob('*.f*q.gz')
+    rfiles=glob('*.f*.gz')
     if not rfiles:
         return {}
     x=defaultdict(int)
@@ -242,27 +252,27 @@ def find_read_files():
             if m in n:
                 x[m]+=1
     for (a,b) in (('_R1','_R2'),('_1.','_2.')):
-        if x[a]>0 and x[a]==x[b] and x[a]==len(rfiles)/2:
+        if x[a]>0 and x[a]==x[b]:
             break
     else:
         a,b='',''
-    y=[n for n in rfiles]
-    if a:
-        y=[n.replace(a,'*') for n in rfiles if a in n]
-    q=-1
-    for i in range(1,len(y[0])):
-        if len(set([k[-i:] for k in y]))>1:
-            while True:
-                i-=1
-                if y[0][-i] in ('-','_','.'):
-                    break
-            q=-i
+    y=[n.replace(a,'*') for n in rfiles if a and a in n]+[n for n in rfiles if a not in n and b not in n]
+    z=[0]*len(y)
+    while True:
+        for i in range(len(y)):
+            x=len(y[i])
+            for n in ('-','_','.','*'):
+                p=y[i].find(n,z[i]+1)
+                if p>0 and p<x:
+                    x=p
+            z[i]=x
+        if len(set([y[i][:z[i]] for i in range(len(y))]))==len(set(y)):
             break
     for i in range(len(y)):
         x=y[i]
-        if a:
+        if a and '*' in x:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
-        y[i]=y[i][:q]+' '+x
+        y[i]=y[i][:z[i]]+' '+x
     return sortfiles(y,' ')
 
 def fsize(filename):
@@ -448,7 +458,7 @@ def rename(name):
         t=str(time.time())
         n=name[:name.rfind('.')]+'-'+t[:t.find('.')]+name[name.rfind('.'):]
         os.rename(name,n)
-        print('\n  Existing '+name+' file was renamed as '+n+'\n  Creating new '+name+' file...\n')
+        print('\n  Existing '+name+' file was renamed as '+n+'\n  Creating new '+name+' file...')
 
 def revcomp(seq):
     rs=(seq[::-1]).lower()
@@ -490,10 +500,5 @@ def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
-
-
-
-
-
 
 
