@@ -1,2 +1,2 @@
 # dmbiolib
- Library of Pythin functions to be used in various projects
+ Library of Python functions to be used in various projects
