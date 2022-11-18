@@ -3,7 +3,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="dmbiolib", # Replace with your own username
-    version="0.2.55",
+    version="0.3.0",
     author="Damien Marsic",
     author_email="damien.marsic@aliyun.com",
     description="Library of Python functions used in other projects",

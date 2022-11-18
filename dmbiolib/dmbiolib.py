@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.2.55'
-last_update='2022-09-05'
+__version__='0.3.0'
+last_update='2022-11-16'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -17,7 +17,7 @@ gcode={
 'agg':'R','aga':'R','agc':'S','agt':'S','aag':'K','aaa':'K','aac':'N','aat':'N','acg':'T', 'aca':'T', 'acc':'T', 'act':'T', 'atg':'M', 'ata':'I', 'atc':'I', 'att':'I',
 'cgg':'R','cga':'R','cgc':'R','cgt':'R','cag':'Q','caa':'Q','cac':'H','cat':'H','ccg':'P', 'cca':'P', 'ccc':'P', 'cct':'P', 'ctg':'L', 'cta':'L', 'ctc':'L', 'ctt':'L',
 'tgg':'W','tga':'*','tgc':'C','tgt':'C','tag':'*','taa':'*','tac':'Y','tat':'Y','tcg':'S', 'tca':'S', 'tcc':'S', 'tct':'S', 'ttg':'L', 'tta':'L', 'ttc':'F', 'ttt':'F'}
-bpairs={'a':'t','c':'g','g':'c','t':'a'}
+bpairs={'a':'t','c':'g','g':'c','t':'a','n':'n','r':'y','y':'r','s':'s','w':'w','k':'m','m':'k','b':'v','d':'h','h':'d','v':'b'}
 
 def aln2seq(fn,type,full,ref):
     fail=''
@@ -180,29 +180,87 @@ def complexity(seq):
 def compress(seq):
     x=''
     for n in seq:
-        if x and n==x[-1]:
+        if x and n in 'atgc' and n==x[-1]:
             continue
         x+=n
     return x
 
-def csv2list(fname):
+def conf_start(fname,title):
+    f=open(fname,'w')
+    f.write('=== '+title.upper()+' CONFIGURATION FILE ===\n\n')
+    x=dirname()
+    y=find_read_files()
+    return f,x,y
+
+def conf_end(f,fname,title):
+    f.write('=== END OF CONFIGURATION FILE ===')
+    f.close()
+    print('\n  Edit the file '+fname+' before running '+title+' again !\n\n')
+
+def csv_read(fname,dic,header):
     with open(fname,'r') as f:
         x=f.read().strip().split('\n')
-    return [n.split(',') for n in x]
+    x=[n.split(',') for n in x]
+    if header:
+        header=x[0]
+        x=x[1:]
+    y=[None]*len(x[0])
+    for i in range(min(100,len(x))):
+        for j in range(len(y)):
+            z=intorfloat(x[i][j])
+            if z==y[j]:
+                continue
+            if not y[j] or z=='other' or z=='float' and y[j]=='int':
+                y[j]=z
+    for n in ('int','float'):
+        q=int
+        if n=='float':
+            q=float
+        z=[i for i in range(len(y)) if y[i]==n]
+        for i in z:
+            for j in range(len(x)):
+                x[j][i]=q(x[j][i])
+    if dic and len(x[0])>1:
+        x={n[0]:n[1:] for n in x}
+    return header,x
 
-def dict2csv(fname,keys,dic,header,descr,r):
+def csv_write(fname,keys,listordict,header,descr,r):
+    if isinstance(listordict,dict):
+        if not keys:
+            keys=list(listordict.keys())
+        x=list(listordict.values())[0]
+    else:
+        x=listordict[0]
+    if isinstance(x,list) or isinstance(x,tuple):
+        x=len(x)
+        if keys:
+            x+=1
+    else:
+        x=str(x).count(',')+2
     f=open(fname,'w')
-    if not keys:
-        keys=dic.keys()
     if header:
         if isinstance(header,list) or isinstance(header,tuple):
             header=','.join(header)
+        if header.count(',')+1==x-1:
+            header=','+header
         f.write(str(header)+'\n')
-    for m in keys:
-        x=dic[m]
-        if isinstance(x,list) or isinstance(x,tuple):
-            x=','.join([str(k) for k in x])
-        f.write(str(m)+','+str(x)+'\n')
+    for i in range(len(listordict)):
+        a=''
+        if keys:
+            if i>=len(keys):
+                break
+            a=keys[i]
+        if isinstance(listordict,dict):
+            b=listordict[a]
+        else:
+            b=listordict[i]
+        if isinstance(b,list) or isinstance(b,tuple):
+            b=','.join([str(k) for k in b])
+        else:
+            b=str(b)
+        if a!='':
+            a=str(a)+','
+        f.write(a+b+'\n')
     f.write('\n')
     f.close()
     if descr:
@@ -242,6 +300,16 @@ def exprange(a,b,c):
         yield a
         a*=c
 
+def find_ambiguous(x):
+    y={}
+    for i in range(len(x)):
+        if x[i] not in 'atgc' and (i==0 or x[i-1] in 'atgc'):
+            j=1
+            while i+j<len(x) and x[i+j] not in 'atgc':
+                j+=1
+            y[i]=j
+    return y
+
 def find_read_files():
     rfiles=glob('*.f*.gz')
     if not rfiles:
@@ -256,24 +324,36 @@ def find_read_files():
             break
     else:
         a,b='',''
-    y=[n.replace(a,'*') for n in rfiles if a and a in n]+[n for n in rfiles if a not in n and b not in n]
-    z=[0]*len(y)
-    while True:
-        for i in range(len(y)):
-            x=len(y[i])
-            for n in ('-','_','.','*'):
-                p=y[i].find(n,z[i]+1)
-                if p>0 and p<x:
-                    x=p
-            z[i]=x
-        if len(set([y[i][:z[i]] for i in range(len(y))]))==len(set(y)):
-            break
+    y=[n.replace(a,'*') for n in rfiles if a and a in n]+[n for n in rfiles if (a not in n and b not in n) or not a]
+    z=prefix(y)
     for i in range(len(y)):
         x=y[i]
         if a and '*' in x:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
         y[i]=y[i][:z[i]]+' '+x
     return sortfiles(y,' ')
+
+def format_dna(seq,margin,cpl,cpn):
+    x=len(str(len(seq)))
+    if cpn<=x:
+        cpn=x+1
+    c=0
+    t=''
+    m=' '*margin
+    i=0
+    while c<len(seq):
+        t+=m
+        while i+cpn<=cpl and c+i+cpn<=len(seq):
+            x=cpn+i
+            i+=cpn
+            if x>=cpn or x>=len(str(c+i)):
+                t+=str(c+i).rjust(min(cpn,x))
+            else:
+                t+=' '*x
+        t+='\n'+m+seq[c:c+cpl]+'\n'
+        c+=cpl
+        i=-(c%cpn)
+    return t
 
 def fsize(filename):
     return os.path.getsize(filename)
@@ -319,19 +399,19 @@ def getfasta(fn,type,required,multi):
 
 def getread(f,y,counter):
     name=''
+    seq=''
     if not y:
-        l=''
         while True:
-            line=f.readline().strip()
-            if not line:
-                line=f.readline().strip()
-            if line[0]=='>':
-                name=line
-            if not line or (l and line[0]=='>'):
+            l=f.readline().strip()
+            if not l:
+                l=f.readline().strip()
+            if l[0]=='>':
+                name=l
+            if not l or (seq and l[0]=='>'):
                 break
-            if not l and line[0]=='>':
+            if not seq and l[0]=='>':
                 continue
-            l+=line
+            seq+=l.lower()
     else:
         z=0
         while z<y:
@@ -341,9 +421,8 @@ def getread(f,y,counter):
             if z==1:
                 seq=l.lower()
             z+=1
-    if not l:
-        return l,f,counter,name
-    counter+=1
+    if seq:
+        counter+=1
     return seq,f,counter,name
 
 def initreadfile(rfile):
@@ -365,6 +444,17 @@ def initreadfile(rfile):
     f.seek(0)
     return f,y
 
+def intorfloat(x):
+    try:
+        float(x)
+        try:
+            int(x)
+            return 'int'
+        except ValueError:
+            return 'float'
+    except ValueError:
+        return 'other'
+
 def lncount(f):
     def _make_gen(reader):
         b=reader(1024*1024)
@@ -382,6 +472,9 @@ def match(text1, text2):
         return True
     else:
         return False
+
+def mean(x):
+    return sum(x)/len(x)
 
 def nt_match(nt1, nt2):
     if nt1==nt2:
@@ -420,6 +513,20 @@ def pr2(f,t):
     if f:
         f.write(t+'\n')
 
+def prefix(y):
+    z=[0]*len(y)
+    while True:
+        for i in range(len(y)):
+            x=len(y[i])
+            for n in ('-','_','.','*'):
+                p=y[i].find(n,z[i]+1)
+                if p>0 and p<x:
+                    x=p
+            z[i]=x
+        if len(set([y[i][:z[i]] for i in range(len(y))]))==len(set(y)):
+            break
+    return z
+
 def progress_check(c,show,t):
     if c in show:
         k=show[c]
@@ -453,8 +560,19 @@ def readcount(R,fail):
         fail+='\n  File '+R+' is not a read file!'
     return(nr,fail)
 
+def remove_common(lst):
+    z=min([len(k) for k in lst])
+    for i in range(z):
+        if len(set([k[i] for k in lst]))!=1:
+            break
+    for j in range(1,z-i):
+        if len(set([k[-j] for k in lst]))!=1:
+            j-=1
+            break
+    return [k[i:-j] if j else k[i:] for k in lst]
+    
 def rename(name):
-    if glob(name):
+    if glob(name) and fsize(name):
         t=str(time.time())
         n=name[:name.rfind('.')]+'-'+t[:t.find('.')]+name[name.rfind('.'):]
         os.rename(name,n)
@@ -500,5 +618,4 @@ def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
-
 
