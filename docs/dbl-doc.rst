@@ -26,15 +26,15 @@ Usage
 
 dmbiolib needs to be imported before its functions can be used. Example::
 
-   import dmbiolib as dbl
-   print(dbl.transl('atgcgattcacg'))
+  import dmbiolib as dbl
+  print(dbl.transl('atgcgattcacg'))
 
 |
 Functions
 =========
 
 aln2seq(filename,type,full,reference)
-******************************
+*************************************
 filename: file containing multiple sequence alignment in caplib3 format
 type: dna or aa
 full: True if full sequences are to be returned (only valid if reference is provided)
