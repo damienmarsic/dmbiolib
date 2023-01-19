@@ -10,7 +10,7 @@ Source code:
 Python package:
  https://pypi.org/project/dmbiolib/
 
-|
+
 Installation
 ============
 
@@ -20,17 +20,16 @@ dmbiolib can be installed using pip::
 
 Note that dependencies might need to be installed individually.
 
-|
+
 Usage
 =====
 
 dmbiolib needs to be imported before its functions can be used. Example::
 
-  import dmbiolib as dbl
-  print(dbl.transl('atgcgattcacg'))
+    import dmbiolib as dbl
+    print(dbl.transl('atgcgattcacg'))
 
 
-|
 Functions
 =========
 
@@ -74,17 +73,17 @@ x: True if all characters in sequence are in type, False if any character is not
 y: True if at least 1 character in sequence is in required, False otherwise
 Examples::
 
-  import dmbiolib as dbl
-  print(dbl.check_seq('cgttcgaac',dbl.dna,dbl.dna))
-  True, True
-  print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.dna))
-  False, True
-  print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.ambiguous))
-  True, True
+    import dmbiolib as dbl
+    print(dbl.check_seq('cgttcgaac',dbl.dna,dbl.dna))
+    True, True
+    print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.dna))
+    False, True
+    print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.ambiguous))
+    True, True
 
 
 check_sync(read1,read2)
-*****************
+***********************
 read1, read2: nucleotide sequences
 Checks whether the 2 read files (Illumina paired-ends) are synchronized (reads in the same file location belongs to the same pair).
 Returns a fail message if the files are not synchronized. Returns an empty string otherwise.
@@ -179,7 +178,7 @@ Example::
    81
 
 find_ambiguous(seq)
-*****************
+*******************
 seq: nucleotide sequence (containing ambiguous nucleotides)
 Identifies location of all ambiguous stretches and their length, which it returns as a dictionay.
 Example::
@@ -378,6 +377,7 @@ transl(seq)
 seq: nucleotide sequence
 Returns amino acid sequence translation of the nucleotide sequence.
 Example::
+    
    transl('atgctgaaagcc')
    MLKA
 
