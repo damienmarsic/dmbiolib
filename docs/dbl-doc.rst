@@ -55,7 +55,7 @@ check_file(filename,strict)
 
 check_plot_format(x)
 ********************
-| x: string to be tested
+* x: string to be tested
 
 | Checks whether a string (x) is an accepted plot format.
 
@@ -63,15 +63,15 @@ check_plot_format(x)
 
 check_read_file(filename)
 *************************
-| filename: name of file to be tested for containing sequencing reads
+* filename: name of file to be tested for containing sequencing reads
 
 | Returns a fail message if filename if found not to be a valid read file. Returns an empty string otherwise.
 
 check_seq(sequence,type,required)
 *********************************
-| sequence: amino acid or nucleotide sequence
-| type: dna ('atgc'), ambiguous ('ryswkmbdhvn'), aa ('ARNDCQEGHILKMFPSTWYV'), or any string (case insensitive)
-| required: string of characters (or type name as above), at least one of which must exist in the sequence
+* sequence: amino acid or nucleotide sequence
+* type: dna ('atgc'), ambiguous ('ryswkmbdhvn'), aa ('ARNDCQEGHILKMFPSTWYV'), or any string (case insensitive)
+* required: string of characters (or type name as above), at least one of which must exist in the sequence
 
 | Checks whether the sequence is of the correct type and if at least one of the required characters is present in the sequence.
 
@@ -91,7 +91,7 @@ Examples::
 
 check_sync(read1,read2)
 ***********************
-| read1, read2: nucleotide sequences
+* read1, read2: nucleotide sequences
 
 | Checks whether the 2 read files (Illumina paired-ends) are synchronized (reads in the same file location belongs to the same pair).
 
@@ -99,7 +99,7 @@ check_sync(read1,read2)
 
 complexity(sequence)
 ********************
-| sequence: nucleotide sequence (including ambiguous nucleotides) to be translated (in frame)
+* sequence: nucleotide sequence (including ambiguous nucleotides) to be translated (in frame)
 
 | Returns a list of dictionaries. Each list item corresponds to a nucleotide triplet from the sequence. Each dictionary lists amino acids corresponding to the triplet translation, with the number of different codons for each amino acid.
 Example::
@@ -115,7 +115,7 @@ Example::
 
 compress(sequence):
 *******************
-| sequence: nucleotide sequence
+* sequence: nucleotide sequence
 
 | Returns a "compressed" sequence in which all homopolymers (but only if a, g, c or t) are shortened to just one copy.
 Example::
@@ -136,26 +136,26 @@ conf_end(file_handle,filename,title)
 
 csv_read(filename,dic,header)
 *****************************
-| filename: name of csv file to be read
-| dic (True/False): whether to store the contents of the csv file in a dictionary (True) or a lst (False).
-| header (True/False): whether the file starts with a header or not (or directly with the data)
+* filename: name of csv file to be read
+* dic (True/False): whether to store the contents of the csv file in a dictionary (True) or a lst (False).
+* header (True/False): whether the file starts with a header or not (or directly with the data)
 
 | Opens a csv file and stores its content into a dictionary, while converting numbers to integers or floats as appropriate.
 
 csv_write(filename,keys,list_or_dic,header,description,file_handle)
 *******************************************************************
-| filename: name of csv file to be created
-| keys: optional first column (if not already part of the list or dictionary)
-| list_or_dic: list (or tuple) or dictionary containing the data to be written into the csv file
-| header: optional top row to be written before the main data
-| description: file description to be used in the message confirming completion of csv file
-| file_handle: file_handle of the report file (or None if no report file)
+* filename: name of csv file to be created
+* keys: optional first column (if not already part of the list or dictionary)
+* list_or_dic: list (or tuple) or dictionary containing the data to be written into the csv file
+* header: optional top row to be written before the main data
+* description: file description to be used in the message confirming completion of csv file
+* file_handle: file_handle of the report file (or None if no report file)
 
 | Creates a csv file from the arguments.
 
 diff(sequences)
 ***************
-| sequences: list of sequences
+* sequences: list of sequences
 
 | Returns the smallest number of differences between any 2 sequences from the list. This is useful to evaluate a list of barcodes for example, to make sure all barcodes differ from each other by at least some number of differences. Note that all sequences must be of the same length.
 Examples::
@@ -176,14 +176,14 @@ Example, if current directory is /home/someuser/somedir::
 
 entropy(matrix)
 ***************
-| matrix: list of lists of values
+* matrix: list of lists of values
 
 | Returns the Shannon entropy of the matrix.
 
 exprange(a,b,c)
 ***************
-| a,b: range boundaries
-| c: multiplying factor
+* a,b: range boundaries
+* c: multiplying factor
 
 | Returns an exponential range as a generator.
 Example::
@@ -200,7 +200,7 @@ Example::
 
 find_ambiguous(seq)
 *******************
-| seq: nucleotide sequence (containing ambiguous nucleotides)
+* seq: nucleotide sequence (containing ambiguous nucleotides)
 
 | Identifies location of all ambiguous stretches and their length, which it returns as a dictionay.
 Example::
@@ -218,10 +218,10 @@ find_read_files()
 
 format_dna(seq,margin,cpl,cpn)
 ******************************
-| seq: raw nucleotide sequence
-| margin: left margin
-| cpl: number of characters per line
-| cpn: number of characters per number
+* seq: raw nucleotide sequence
+* margin: left margin
+* cpl: number of characters per line
+* cpn: number of characters per number
 
 | Returns formatted nucleotide sequence.
 Example::
@@ -241,18 +241,18 @@ fsize(filename)
 
 getfasta(fname,type,required,multi)
 ***********************************
-| fname: name of the fasta file to be opened
-| type: dna or aa
-| required: same as type, or 'ambiguous' if some ambiguous nucleotides must be present
-| multi: Whether the file contains multiple sequences (True) or a single one (False).
+* fname: name of the fasta file to be opened
+* type: dna or aa
+* required: same as type, or 'ambiguous' if some ambiguous nucleotides must be present
+* multi: Whether the file contains multiple sequences (True) or a single one (False).
 
 | Returns a dictionary of all sequences identified (keys: sequence names, values: sequences) and a string containing possible fail messages.
 
 getread(f,y,counter)
 ********************
-| f: file handle
-| y: number of lines per sequence (or 0 if variable number)
-| counter: number of reads already processed
+* f: file handle
+* y: number of lines per sequence (or 0 if variable number)
+* counter: number of reads already processed
 
 | Reads next read and determine read name and sequence.
 
@@ -260,7 +260,7 @@ getread(f,y,counter)
 
 initreadfile(rfile)
 *******************
-| rfile: read file (can be fasta or fastq, uncompressed or gzipped)
+* rfile: read file (can be fasta or fastq, uncompressed or gzipped)
 
 | Opens and checks the file. Detects if the format is fastq (new sequence every 4 lines), single line fasta (new sequence every 2 lines) or multiline fasta (new sequence every unknown number of lines).
 
@@ -268,19 +268,19 @@ initreadfile(rfile)
 
 intorfloat(x)
 *************
-| x: string to be tested whether it can be converted into an integer or a float
+* x: string to be tested whether it can be converted into an integer or a float
 
 | Returns 'int' if x can be converted to an integer, 'float' if can be converted into a float, 'other' in all other cases.
 
 lncount(f)
 **********
-| f: file handle
+* f: file handle
 
 | Returns the number of lines in the file (works fast with large files).
 
 match(seq1, seq2)
 *****************
-| seq1, seq2: nucleotide sequences (with or without ambiguous nucleotides)
+* seq1, seq2: nucleotide sequences (with or without ambiguous nucleotides)
 
 | Checks if the 2 sequences match at each position (see nt_match() below).
 
@@ -295,7 +295,7 @@ Examples::
 
 mean(x)
 *******
-| x: list or tuple of numerical values
+* x: list or tuple of numerical values
 
 | Returns the mean (sum of all values divided by number of values).
 Example::
@@ -306,7 +306,7 @@ Example::
 
 nt_match(nt1, nt2)
 ******************
-| nt1, nt2: nucleotide (a, g, c, t or ambiguous)
+* nt1, nt2: nucleotide (a, g, c, t or ambiguous)
 
 | Returns True if the 2 nucleotides match, False otherwise.
 
@@ -329,24 +329,24 @@ Examples::
 
 open_read_file(filename)
 ************************
-| filename: name of the read file to be opened
+* filename: name of the read file to be opened
 
 | Opens a read file (either uncompressed or gzipped) and returns the file handle.
 
 plot_end(fig,name,format,mppdf)
 *******************************
-| fig: figure handle
-| name: file name without extension (if each figure is saved individually)
-| format: extension corresponding to the chosen figure format (if each figure is saved individually)
-| mppdf: PdfPages handle (if all figures saved in single file pdf)
+* fig: figure handle
+* name: file name without extension (if each figure is saved individually)
+* format: extension corresponding to the chosen figure format (if each figure is saved individually)
+* mppdf: PdfPages handle (if all figures saved in single file pdf)
 
 | Completes the plotting process.
 
 plot_start(x,y,z)
 *****************
-| x: color map to be used
-| y: number of colors needed
-| z: plot title
+* x: color map to be used
+* y: number of colors needed
+* z: plot title
 
 | Initializes the plot
 
@@ -354,14 +354,14 @@ plot_start(x,y,z)
 
 pr2(f,text)
 ***********
-| f: file handle
-| text: text to be printed
+* f: file handle
+* text: text to be printed
 
 | Prints a text simultaneously to the screen and to a file (adds '\n' when printing to file).
 
 prefix(x)
 *********
-| x: list of file names
+* x: list of file names
 
 | Returns a list of numbers, with each number being the suggested slice (from left end) of the corresponding file name to be used as a prefix.
 Example::
@@ -373,9 +373,9 @@ Example::
 
 progress_check(c,show,text)
 ***************************
-| c: read counter
-| show: dictionary of read numbers that trigger a new % value to the progress counter
-| text: text describing the process (should be the same as in progress_start(nr,text))
+* c: read counter
+* show: dictionary of read numbers that trigger a new % value to the progress counter
+* text: text describing the process (should be the same as in progress_start(nr,text))
 
 | Updates the progress counter that was created by progress_start(nr,text).
 
@@ -385,8 +385,8 @@ progress_end()
 
 progress_start(nr,text)
 ***********************
-| nr: number of reads
-| text: text describing the process
+* nr: number of reads
+* text: text describing the process
 
 | Starts a progress counter (from 0.0% to 100.0%) of going through a read file.
 
@@ -394,8 +394,8 @@ progress_start(nr,text)
 
 readcount(R,fail)
 *****************
-| R: name of read file
-| fail: fail message
+* R: name of read file
+* fail: fail message
 
 | Counts number of reads in a read file (can be fasta or fastq format, either uncompressed of gzipped). Add a fail text to the fail variable if the file if detected as not being a read file.
 
@@ -403,13 +403,13 @@ readcount(R,fail)
 
 rename(filename)
 ****************
-| filename: name of the file to be renamed
+* filename: name of the file to be renamed
 
 | If the file exists and has non zero size, it is renamed by appending a unique number to it, so a new file with the name filename can be created.
 
 revcomp(seq)
 ************
-| seq: nucleotide sequence
+* seq: nucleotide sequence
 
 | Returns the reverse-complement.
 Example::
@@ -419,23 +419,23 @@ Example::
 
 shortest_probe(seqs,lim,host,t)
 *******************************
-| seqs: list of nucleotide sequences
-| lim: minimum probe size
-| host: host genome
-| t: description
+* seqs: list of nucleotide sequences
+* lim: minimum probe size
+* host: host genome
+* t: description
 
 | Returns shortest probe size allowing to identify all sequences and with probe sequence not present in the host genome.
 
 sortfiles(l,str)
 ****************
-| l: list of file names to be sorted
-| str: string before which file names will be sorted
+* l: list of file names to be sorted
+* str: string before which file names will be sorted
 
 | Returns a list of sorted file names. Sorting is based on numbers if numbers are present in the file names.
 
 transl(seq)
 ***********
-| seq: nucleotide sequence
+* seq: nucleotide sequence
 
 | Returns amino acid sequence translation of the nucleotide sequence.
 Example::
