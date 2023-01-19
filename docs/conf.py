@@ -9,6 +9,7 @@
 project = 'dmbiolib'
 copyright = '2022, Damien Marsic'
 author = 'Damien Marsic'
+release = '0.3.6'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -27,10 +28,10 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 html_theme_options = {
-    'logo':,
+  #  'logo':,
     'github_user': 'damienmarsic',
     'github_repo': 'dmbiolib',
-    'logo_name': True,
+    'logo_name': False,
     'github_button': True
 }
 
