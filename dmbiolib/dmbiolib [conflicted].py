@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.3.6'
-last_update='2023-01-19'
+__version__='0.3.1'
+last_update='2022-12-06'
 author='Damien Marsic, damien.marsic@aliyun.com'
 
 import sys,os,gzip,time,math
@@ -9,7 +9,6 @@ from collections import defaultdict
 import numpy as np
 from matplotlib import pyplot as plt
 
-dna='atgc'
 ambiguous="ryswkmbdhvn"
 aa="ARNDCQEGHILKMFPSTWYV"
 IUPAC=[set('ag'),set('ct'),set('gc'),set('at'),set('gt'),set('ac'),set('cgt'),set('agt'),set('act'),set('acg'),set('atgc')]
@@ -66,7 +65,8 @@ def aln2seq(fn,type,full,ref):
                 else:
                     t+=z[i][j]
             z[i]=t
-        if full and ref:
+        if full:
+            t=''
             t=ref[:q[0]]
             for i in range(len(q)):
                 t+=z[i]
@@ -204,19 +204,26 @@ def csv_read(fname,dic,header):
     if header:
         header=x[0]
         x=x[1:]
-    y=[None]*min([len(x[i]) for i in range(len(x))])
+    y=[None]*len(x[0])
     for i in range(min(100,len(x))):
-        for j in range(1,len(y)+1):
-            z=intorfloat(x[i][-j])
-            if z==y[j-1]:
+        for j in range(len(y)):
+            z=intorfloat(x[i][j])
+            if z==y[j]:
                 continue
-            if not y[j-1] or z=='other' or (z=='float' and y[j-1]=='int'):
-                y[j-1]=z
+            if not y[j] or z=='other' or (z=='float' and y[j]=='int'):
+                y[j]=z
+
+                print(i,j,z)
+
+
+    print(y)
+
+
     for n in ('int','float'):
         q=int
         if n=='float':
             q=float
-        z=[-i-1 for i in range(len(y)) if y[i]==n]
+        z=[i for i in range(len(y)) if y[i]==n]
         for i in z:
             for j in range(len(x)):
                 x[j][i]=q(x[j][i])
@@ -481,8 +488,6 @@ def nt_match(nt1, nt2):
         return True
     elif (nt2 in ambiguous and nt1 in IUPAC[ambiguous.index(nt2)]) or (nt1 in ambiguous and nt2 in IUPAC[ambiguous.index(nt1)]):
         return True
-    elif nt1 in ambiguous and nt2 in ambiguous and (not IUPAC[ambiguous.index(nt2)]-IUPAC[ambiguous.index(nt1)] or not IUPAC[ambiguous.index(nt1)]-IUPAC[ambiguous.index(nt2)]):
-        return True
     else:
         return False
 
@@ -562,6 +567,17 @@ def readcount(R,fail):
         fail+='\n  File '+R+' is not a read file!'
     return(nr,fail)
 
+def remove_common(lst):
+    z=min([len(k) for k in lst])
+    for i in range(z):
+        if len(set([k[i] for k in lst]))!=1:
+            break
+    for j in range(1,z-i):
+        if len(set([k[-j] for k in lst]))!=1:
+            j-=1
+            break
+    return [k[i:-j] if j else k[i:] for k in lst]
+    
 def rename(name):
     if glob(name) and fsize(name):
         t=str(time.time())
@@ -610,3 +626,5 @@ def transl(seq):
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
 
+
+_,x=csv_read('barseq_count.csv',False,None)
