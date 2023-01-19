@@ -16,7 +16,7 @@ Installation
 
 dmbiolib can be installed using pip::
 
-   pip install dmbiolib
+    pip install dmbiolib
 
 Note that dependencies might need to be installed individually.
 
@@ -377,7 +377,7 @@ transl(seq)
 seq: nucleotide sequence
 Returns amino acid sequence translation of the nucleotide sequence.
 Example::
-    
+
    transl('atgctgaaagcc')
    MLKA
 
