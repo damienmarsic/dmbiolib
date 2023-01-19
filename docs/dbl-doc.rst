@@ -15,7 +15,6 @@ Installation
 ============
 
 dmbiolib can be installed using pip::
-
     pip install dmbiolib
 
 Note that dependencies might need to be installed individually.
@@ -24,7 +23,8 @@ Note that dependencies might need to be installed individually.
 Usage
 =====
 
-dmbiolib needs to be imported before its functions can be used. Example::
+dmbiolib needs to be imported before its functions can be used.
+Example::
     import dmbiolib as dbl
     print(dbl.transl('atgcgattcacg'))
 
@@ -34,27 +34,27 @@ Functions
 
 aln2seq(filename,type,full,reference)
 *************************************
-filename: file containing multiple sequence alignment in caplib3 format
-| type: dna or aa
-| full: True if full sequences are to be returned (only valid if reference is provided)
-|reference: name of file containing the reference sequence
-|Converts alignments into caplib3 format (variable regions with identity displayed as .) into complete sequences.
-|*Work in progress !*
+  filename: file containing multiple sequence alignment in caplib3 format
+  type: dna or aa
+  full: True if full sequences are to be returned (only valid if reference is provided)
+  reference: name of file containing the reference sequence
+  Converts alignments into caplib3 format (variable regions with identity displayed as .) into complete sequences.
+  *Work in progress !*
 
 check_file(filename,strict)
 ***************************
-|filename: file name to be tested
-|strict: True or False
-|Checks whether a file (filename) exists in the working directory.
-|Returns True if the file exists, False if the file does not exist and strict is False. Exits if the file does not exist and strict is True.
+| filename: file name to be tested
+| strict: True or False
+| Checks whether a file (filename) exists in the working directory.
+| Returns True if the file exists, False if the file does not exist and strict is False. Exits if the file does not exist and strict is True.
 
 check_plot_format(x)
 ********************
-|x: string to be tested
-|Checks whether a string (x) is an accepted plot format.
-|Returns x if x is svg, png, jpg, jpeg, pdf, ps, eps, pgf, raw, rgba, tif or tiff.
-|Returns empty string if x is 'Single multipage pdf'.
-|Exits in all other cases.
+| x: string to be tested
+| Checks whether a string (x) is an accepted plot format.
+| Returns x if x is svg, png, jpg, jpeg, pdf, ps, eps, pgf, raw, rgba, tif or tiff.
+| Returns empty string if x is 'Single multipage pdf'.
+| Exits in all other cases.
 
 check_read_file(filename)
 *************************
