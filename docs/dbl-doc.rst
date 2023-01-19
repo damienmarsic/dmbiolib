@@ -24,7 +24,7 @@ Note that dependencies might need to be installed individually.
 Usage
 =====
 
-dmbiolib needs to be imported before its functions can be used. Example:
+dmbiolib needs to be imported before its functions can be used. Example::
 
    import dmbiolib as dbl
    print(dbl.transl('atgcgattcacg'))
@@ -71,7 +71,7 @@ Checks whether the sequence is of the correct type and if at least one of the re
 Returns a pair of booleans: x,y
 x: True if all characters in sequence are in type, False if any character is not in type
 y: True if at least 1 character in sequence is in required, False otherwise
-Examples:
+Examples::
    import dmbiolib as dbl
    print(dbl.check_seq('cgttcgaac',dbl.dna,dbl.dna))
    True, True
@@ -90,7 +90,7 @@ complexity(sequence)
 ********************
 sequence: nucleotide sequence (including ambiguous nucleotides) to be translated (in frame)
 Returns a list of dictionaries. Each list item corresponds to a nucleotide triplet from the sequence. Each dictionary lists amino acids corresponding to the triplet translation, with the number of different codons for each amino acid.
-Example:
+Example::
    import dmbiolib as dbl
    x=dbl.complexity('atgdbctss')
    for n in x:
@@ -103,7 +103,7 @@ compress(sequence):
 *******************
 sequence: nucleotide sequence
 returns a "compressed" sequence in which all homopolymers (but only if a, g, c or t) are shortened to just one copy.
-Example:
+Example::
    import dmbiolib as dbl
    print(dbl.compress('gggcaatccccnnnncaagtt'))
    gcatcnnnncagt
@@ -138,7 +138,7 @@ diff(sequences)
 ***************
 sequences: list of sequences
 Returns the smallest number of differences between any 2 sequences from the list. This is useful to evaluate a list of barcodes for example, to make sure all barcodes differ from each other by at least some number of differences. Note that all sequences must be of the same length.
-Examples:
+Examples::
    import dmbiolib as dbl
    print(dbl.diff(['agct','gatc','ctga','tcag']))
    4
@@ -148,7 +148,7 @@ Examples:
 dirname()
 *******
 Returns the name (not the full path) of the current directory.
-Example, if current directory is /home/someuser/somedir
+Example, if current directory is /home/someuser/somedir::
    print(dirname())
    somedir
 
@@ -162,7 +162,7 @@ exprange(a,b,c)
 a,b: range boundaries
 c: multiplying factor
 Returns an exponential range as a generator.
-Example:
+Example::
    import dmbiolib as dbl
    x=dbl.exprange(1,100,3)
    for n in x:
@@ -177,7 +177,7 @@ find_ambiguous(seq)
 *****************
 seq: nucleotide sequence (containing ambiguous nucleotides)
 Identifies location of all ambiguous stretches and their length, which it returns as a dictionay.
-Example:
+Example::
    import dmbiolib as dbl
    seq='gatcgatcgtnnnnngactgavvmttcgsbynccgtcga'
    print(dbl.find_ambiguous(seq))
@@ -195,7 +195,7 @@ margin: left margin
 cpl: number of characters per line
 cpn: number of characters per number
 Returns formatted nucleotide sequence.
-Example:
+Example::
    seq='gatcgatcgatcgatcgtacgtatcgatcgatcgatcgatcgactgatcagctacgatcgatcgatcgatgtgacccccttagc'
    print(dbl.format_dna(seq,5,30,10))
                 10        20        30
@@ -246,7 +246,7 @@ match(seq1, seq2)
 seq1, seq2: nucleotide sequences (with or without ambiguous nucleotides)
 Checks if the 2 sequences match at each position (see nt_match() below).
 Returns True if the sequences match, False otherwise (or if sequence lengths are different).
-Examples:
+Examples::
    import dmbiolib as dbl
    dbl.match('acgatcg','accatcg')
    False
@@ -264,7 +264,7 @@ nt_match(nt1, nt2)
 nt1, nt2: nucleotide (a, g, c, t or ambiguous)
 Returns True if the 2 nucleotides match, False otherwise.
 Matching means identity for a, t, g and c, and compatibility for ambiguous nucleotides.
-Examples:
+Examples::
    import dmbiolib as dbl
    dbl.nt_match('a','a')
    True
@@ -310,7 +310,7 @@ prefix(x)
 *********
 x: list of file names
 Returns a list of numbers, with each number being the suggested slice (from left end) of the corresponding file name to be used as a prefix.
-Example:
+Example::
    import dmbiolib as dbl
    x=['P0-left_L4_2.fq.gz', 'P0-right_L4_2.fq.gz', 'P1-left_L4_2.fq.gz', 'P1-right_L4_2.fq.gz', 'P2-left_L4_2.fq.gz', 'P2-right_L4_2.fq.gz']
    print(dbl.prefix(x))
@@ -350,7 +350,7 @@ revcomp(seq)
 ************
 seq: nucleotide sequence
 Returns the reverse-complement.
-Example:
+Example::
    revcomp('agctgctaa')
    ttagcagct
 
@@ -372,7 +372,7 @@ transl(seq)
 ***********
 seq: nucleotide sequence
 Returns amino acid sequence translation of the nucleotide sequence.
-Example:
+Example::
    transl('atgctgaaagcc')
    MLKA
 
