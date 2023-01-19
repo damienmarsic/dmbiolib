@@ -35,12 +35,12 @@ Functions
 
 aln2seq(filename,type,full,reference)
 *************************************
-filename: file containing multiple sequence alignment in caplib3 format|
-type: dna or aa|
-full: True if full sequences are to be returned (only valid if reference is provided)|
-reference: name of file containing the reference sequence|
-Converts alignments into caplib3 format (variable regions with identity displayed as .) into complete sequences.|
-*Work in progress !*
+filename: file containing multiple sequence alignment in caplib3 format
+| type: dna or aa
+| full: True if full sequences are to be returned (only valid if reference is provided)
+|reference: name of file containing the reference sequence
+|Converts alignments into caplib3 format (variable regions with identity displayed as .) into complete sequences.
+|*Work in progress !*
 
 check_file(filename,strict)
 ***************************
