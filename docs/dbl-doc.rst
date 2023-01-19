@@ -29,6 +29,7 @@ dmbiolib needs to be imported before its functions can be used. Example::
   import dmbiolib as dbl
   print(dbl.transl('atgcgattcacg'))
 
+
 |
 Functions
 =========
@@ -72,14 +73,16 @@ Returns a pair of booleans: x,y
 x: True if all characters in sequence are in type, False if any character is not in type
 y: True if at least 1 character in sequence is in required, False otherwise
 Examples::
-   import dmbiolib as dbl
-   print(dbl.check_seq('cgttcgaac',dbl.dna,dbl.dna))
-   True, True
-   print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.dna))
-   False, True
-   print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.ambiguous))
-   True, True
-   
+
+  import dmbiolib as dbl
+  print(dbl.check_seq('cgttcgaac',dbl.dna,dbl.dna))
+  True, True
+  print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.dna))
+  False, True
+  print(dbl.check_seq('cgttnnaac',dbl.dna,dbl.ambiguous))
+  True, True
+
+
 check_sync(read1,read2)
 *****************
 read1, read2: nucleotide sequences
@@ -91,6 +94,7 @@ complexity(sequence)
 sequence: nucleotide sequence (including ambiguous nucleotides) to be translated (in frame)
 Returns a list of dictionaries. Each list item corresponds to a nucleotide triplet from the sequence. Each dictionary lists amino acids corresponding to the triplet translation, with the number of different codons for each amino acid.
 Example::
+
    import dmbiolib as dbl
    x=dbl.complexity('atgdbctss')
    for n in x:
@@ -98,6 +102,7 @@ Example::
    defaultdict(<class 'int'>, {'M': 1})
    defaultdict(<class 'int'>, {'F': 1, 'C': 1, 'S': 2, 'V': 1, 'G': 1, 'A': 1, 'I': 1, 'T': 1})
    defaultdict(<class 'int'>, {'W': 1, 'C': 1, 'S': 2})
+
 
 compress(sequence):
 *******************
