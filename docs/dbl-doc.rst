@@ -33,6 +33,22 @@ dmbiolib needs to be imported before its functions can be used. Example::
 Functions
 =========
 
+
+
+
+dmbiolib can be installed using pip::
+
+    pip install dmbiolib
+    
+    
+
+dmbiolib can be installed using pip::
+
+    pip install dmbiolib
+
+DQYLYYLSRTQTTGGTTNTQTLGFSQGGPNTMANQAKNWLPGPCYRQQRVSKTSADNNNSEYSWTGATKYHLNGRDSLVNPGPAMASHKDDEEKFFPQSGVLIFGKQGSE    
+    
+
 aln2seq(filename,type,full,reference)
 *************************************
 filename: file containing multiple sequence alignment in caplib3 format
