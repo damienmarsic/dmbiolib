@@ -10,6 +10,9 @@ Source code:
 Python package:
  https://pypi.org/project/dmbiolib/
 
+Bug report / feature requests:
+ https://github.com/damienmarsic/dmbiolib/issues/new/choose
+
 
 Installation
 ============
