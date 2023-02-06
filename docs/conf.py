@@ -9,7 +9,7 @@
 project = 'dmbiolib'
 copyright = '2022, Damien Marsic'
 author = 'Damien Marsic'
-release = '0.3.7'
+release = '0.3.8'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
