@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.3.7'
-last_update='2023-02-02'
+__version__='0.3.8'
+last_update='2023-02-06'
 author='Damien Marsic, damien.marsic@aliyun.com'
 license='GNU General Public v3 (GPLv3)'
 docs='https://dmbiolib.readthedocs.io'
@@ -613,5 +613,5 @@ def transl(seq):
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
 
-if any(k in sys.argv for k in ('-v','--version','-h','--help')):
+if  script in sys.argv and any(k in sys.argv for k in ('-v','--version','-h','--help')):
     print('\n  Project: '+script+'\n  Description: a library of Python functions for bioinformatics\n  Version: '+__version__+'\n  Latest update: '+last_update+'\n  Author: '+author+'\n  License: '+license+'\n  Documentation: '+docs+'\n')
