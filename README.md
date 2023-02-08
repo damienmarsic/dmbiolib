@@ -4,7 +4,7 @@ Library of Python functions for bioinformatics
 
 Install from Bioconda:
 ````
-conda install dmbiolib
+conda install -c bioconda dmbiolib
 ````
 Install from PyPI:
 ````
