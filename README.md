@@ -1,6 +1,6 @@
 # dmbiolib
 
-Library of Python functions to be used in bioinformatics projects.
+Library of Python functions for bioinformatics
 
 Install from Bioconda:
 ````
