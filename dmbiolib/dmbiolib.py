@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.3.8'
-last_update='2023-02-06'
+__version__='0.3.9'
+last_update='2023-03-02'
 author='Damien Marsic, damien.marsic@aliyun.com'
 license='GNU General Public v3 (GPLv3)'
 docs='https://dmbiolib.readthedocs.io'
@@ -119,7 +119,7 @@ def check_plot_format(x):
 def check_read_file(x):
     fail=''
     if check_file(x,False):
-        f=open_read_file(x)
+        f=rfile_open(x)
         for i in range(5):
             y=f.readline().strip()
             if y:
@@ -429,7 +429,7 @@ def getread(f,y,counter):
     return seq,f,counter,name
 
 def initreadfile(rfile):
-    f=open_read_file(rfile)
+    f=rfile_open(rfile)
     l=f.readline().strip()
     if not l or l[0] not in ('>','@'):
         f.close()
@@ -458,15 +458,6 @@ def intorfloat(x):
     except ValueError:
         return 'other'
 
-def lncount(f):
-    def _make_gen(reader):
-        b=reader(1024*1024)
-        while b:
-            yield b
-            b=reader(1024*1024)
-    f_gen=_make_gen(f.read)
-    return sum(buf.count(b'\n') for buf in f_gen)
-
 def match(text1, text2):
     if len(text1)==len(text2):
         for l in range(len(text1)):
@@ -488,13 +479,6 @@ def nt_match(nt1, nt2):
         return True
     else:
         return False
-
-def open_read_file(x):
-    if x[-2:]=='gz':
-        f=gzip.open(x,'rt')
-    else:
-        f=open(x,'r')
-    return f
 
 def plot_end(fig,name,format,mppdf):
     fig.subplots_adjust(bottom=0.15)
@@ -549,21 +533,14 @@ def progress_start(nr,t):
     print('  '+t+'     0.0%',end='')
     return show
 
-def readcount(R,fail):
+def readcount(R):
     if R[-3:]=='.gz':
         f=gzip.open(R,'r')
-    elif R[-1]=='q':
+    else:
         f=open(R,'rb')
-    else:
-        f=open(R,'r')
-    if R[-3:]=='.gz' or R[-1]=='q':
-        nr=lncount(f)//4
-    else:
-        nr=f.read().count('>')
+    nr=xcount(f,'\n')//4
     f.close()
-    if nr<2:
-        fail+='\n  File '+R+' is not a read file!'
-    return(nr,fail)
+    return nr
 
 def rename(name):
     if glob(name) and fsize(name):
@@ -576,6 +553,20 @@ def revcomp(seq):
     rs=(seq[::-1]).lower()
     x=''.join([bpairs.get(rs[i], 'X') for i in range(len(seq))])
     return x
+
+def rfile_create(x):
+    if x[-2:]=='gz':
+        f=gzip.open(x,'wb')
+    else:
+        f=open(x,'w')
+    return f
+
+def rfile_open(x):
+    if x[-2:]=='gz':
+        f=gzip.open(x,'rt')
+    else:
+        f=open(x,'r')
+    return f
 
 def shortest_probe(seqs,lim,host,t):
     if lim<1:
@@ -612,6 +603,15 @@ def transl(seq):
     seq=seq.lower()
     x=''.join([gcode.get(seq[3*i:3*i+3],'X') for i in range(len(seq)//3)])
     return x
+
+def xcount(f,x):
+    def _make_gen(reader):
+        b=reader(1024*1024)
+        while b:
+            yield b
+            b=reader(1024*1024)
+    f_gen=_make_gen(f.read)
+    return sum(buf.count(bytes(x,'utf-8')) for buf in f_gen)
 
 if  script in sys.argv and any(k in sys.argv for k in ('-v','--version','-h','--help')):
     print('\n  Project: '+script+'\n  Description: a library of Python functions for bioinformatics\n  Version: '+__version__+'\n  Latest update: '+last_update+'\n  Author: '+author+'\n  License: '+license+'\n  Documentation: '+docs+'\n')

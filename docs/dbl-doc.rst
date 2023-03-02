@@ -275,12 +275,6 @@ intorfloat(x)
 
 | Returns 'int' if x can be converted to an integer, 'float' if can be converted into a float, 'other' in all other cases.
 
-lncount(f)
-**********
-* f: file handle
-
-| Returns the number of lines in the file (works fast with large files).
-
 match(seq1, seq2)
 *****************
 * seq1, seq2: nucleotide sequences (with or without ambiguous nucleotides)
@@ -329,12 +323,6 @@ Examples::
    False
    dbl.nt_match('g','s')
    True
-
-open_read_file(filename)
-************************
-* filename: name of the read file to be opened
-
-| Opens a read file (either uncompressed or gzipped) and returns the file handle.
 
 plot_end(fig,name,format,mppdf)
 *******************************
@@ -395,7 +383,7 @@ progress_start(nr,text)
 
 | Returns a dictionary of read numbers and % completion (only the read numbers that will trigger an update to the counter).
 
-readcount(R,fail)
+readcount(R)
 *****************
 * R: name of read file
 * fail: fail message
@@ -419,6 +407,12 @@ Example::
 
    revcomp('agctgctaa')
    ttagcagct
+
+rfile_create(filename)
+************************
+* filename: name of the read file to be opened
+
+| Opens a read file (either uncompressed or gzipped) and returns the file handle.
 
 shortest_probe(seqs,lim,host,t)
 *******************************
@@ -445,5 +439,13 @@ Example::
 
    transl('atgctgaaagcc')
    MLKA
+
+xcount(f,x)
+***********
+* f: file handle (file must be opened in binary mode)
+* x: string to be counted
+
+| Returns the number of instances of x in the file (useful to count lines or reads in large files).
+
 
 
