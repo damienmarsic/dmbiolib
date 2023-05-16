@@ -10,6 +10,9 @@ Source code:
 Python package:
  https://pypi.org/project/dmbiolib/
 
+Bioconda package:
+ https://bioconda.github.io/recipes/dmbiolib/README.html
+
 Bug report / feature requests:
  https://github.com/damienmarsic/dmbiolib/issues/new/choose
 
@@ -33,8 +36,27 @@ Example::
     print(dbl.transl('atgcgattcacg'))
 
 
+Latest news
+===========
+2023-05-16: update to 0.4.0. Improved conf_start, conf_end, cvs_write, prefix. Added aa_dist, detect_vr, findall, frame, mut_per_read, prod, seq_clust_card_dist, seq_write, size_dist.
+
+
 Functions
 =========
+
+aa_dist(seqs,parvrs,fname,r)
+****************************
+* seqs: dictionary of dictionaries {vr1:{seq1:n1, seq2:n2, ...}, vr2:{...}, ...} where vr1, vr2 are variable region names, seq1, seq2 are amino acid sequences, n1, n2 are read counts
+* parvrs: dictionary of tuples {vr1:(seq1, pos1), vr2:(seq2, pos2), ...} where vr1, vr2 are variable region names (must be the same as in seqs), seq1, seq2 are parental amino acid sequences, pos1, pos2 are position numbers in the parental protein chain (can be None of no parental sequence)
+* fname: name of output file (can be None if no need to save results)
+* r: handle of report file (can be None if not used)
+
+| Creates an amino acid distribution dictionary and csv file, including each position in each variable region.
+
+| Also creates a mutation distribution dictionary and csv file if parvrs is provided.
+
+| Returns amino acid distribution and mutation distribution dictionaries.
+
 
 aln2seq(filename,type,full,reference)
 *************************************
@@ -127,15 +149,15 @@ Example::
    print(dbl.compress('gggcaatccccnnnncaagtt'))
    gcatcnnnncagt
    
-conf_start(filename,title)
+conf_start(title)
 **************************
-| Creates a configuration file, using filename (name of configuration file) and title (text to be included in the title at the beginning of the file).
+| Creates a configuration file, using title (text to be included in the title at the beginning of the file).
 
-| Returns the file handle, the current directory name and a list of detected read files or read file pairs preceded by a file prefix.
+| Returns a string with the preliminary content of the future configuration file, the current directory name and a list of detected read files or read file pairs preceded by a file prefix.
 
-conf_end(file_handle,filename,title)
+conf_end(filename,content,title)
 ************************************
-| Completes writing the configuration file.
+| Completes writing content into the configuration file.
 
 csv_read(filename,dic,header)
 *****************************
@@ -149,12 +171,21 @@ csv_write(filename,keys,list_or_dic,header,description,file_handle)
 *******************************************************************
 * filename: name of csv file to be created
 * keys: optional first column (if not already part of the list or dictionary)
-* list_or_dic: list (or tuple) or dictionary containing the data to be written into the csv file
+* list_or_dic: list (or tuple) or dictionary containing the data (which can be strings, lists, tuples or dictionaries) to be written into the csv file
 * header: optional top row to be written before the main data
 * description: file description to be used in the message confirming completion of csv file
 * file_handle: file_handle of the report file (or None if no report file)
 
 | Creates a csv file from the arguments.
+
+detect_vr(libnt,mindist)
+************************
+* libnt: in frame, protein-coding library nucleotide sequence (containing ambiguous positions)
+* mindist: minimum distance between 2 variable regions
+
+| Detects variable regions (as strings of codons) from a library nucleotide sequence.
+
+| Returns a dictionary of lists: {vr1:[left_seq,vr_seq,right_seq], vr2:...} where vr1, vr2: variable region names, left_seq: nucleotide sequence upstream the variable region, vr_seq, variable region sequence, right_seq: nucleotide sequence downstream the variable region.
 
 diff(sequences)
 ***************
@@ -170,7 +201,7 @@ Examples::
    2
 
 dirname()
-*******
+*********
 | Returns the name (not the full path) of the current directory.
 Example, if current directory is /home/someuser/somedir::
 
@@ -218,6 +249,19 @@ find_read_files()
 | Looks for read files (gzipped only) in the current directory.
 
 | Returns a list in wich each item is a string containing a prefix followed by either a single read file or a pair (in case of paired ends sequencing), separated by a space.
+
+findall(probe,seq,start,end,overlap=False)
+******************************************
+* probe: 
+* seq: 
+* start: 
+* end: 
+* overlap: optional argument (default: False)
+
+
+
+
+
 
 format_dna(seq,margin,cpl,cpn)
 ******************************
