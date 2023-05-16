@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__='0.4.0'
+__version__='0.4.1'
 last_update='2023-05-16'
 author='Damien Marsic, damien.marsic@aliyun.com'
 license='GNU General Public v3 (GPLv3)'
@@ -7,7 +7,7 @@ docs='https://dmbiolib.readthedocs.io'
 
 import sys,os,gzip,time,math
 from glob import glob
-from collections import defaultdict
+from collections import defaultdict,Counter
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -437,7 +437,7 @@ def format_dna(seq,margin,cpl,cpn):
         i=-(c%cpn)
     return t
 
-def frame(seq,strict):
+def frame(seq,strict=False):
     trans={}
     stop={}
     for i in range(3):

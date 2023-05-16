@@ -39,6 +39,7 @@ Example::
 Latest news
 ===========
 2023-05-16: update to 0.4.0. Improved conf_start, conf_end, cvs_write, prefix. Added aa_dist, detect_vr, findall, frame, mut_per_read, prod, seq_clust_card_dist, seq_write, size_dist.
+2023-05-16: update to 0.4.1. Minor fixes.
 
 
 Functions
@@ -252,16 +253,15 @@ find_read_files()
 
 findall(probe,seq,start,end,overlap=False)
 ******************************************
-* probe: 
-* seq: 
-* start: 
-* end: 
-* overlap: optional argument (default: False)
+* probe: string, occurrences of which are searched in seq
+* seq: string in which probe is searched
+* start: seq start index of search (0 if no limit)
+* end: seq end index of search (None of no limit)
+* overlap: optional argument to allow overlaps (default: False)
 
+| Finds all occurrences of a string (probe) in a bigger string (seq), between seq start and end, with overlaps included optionally.
 
-
-
-
+| Returns an iterator (must be converted to list if a list is needed).
 
 format_dna(seq,margin,cpl,cpn)
 ******************************
@@ -281,6 +281,15 @@ Example::
         atcgatcgatcgactgatcagctacgatcg
                 70        80
         atcgatcgatgtgacccccttagc
+
+frame(seq,strict=False)
+***********************
+* seq: nucleotide sequences to be examined
+* strict: when True, will return None if the guess is too speculative (optional argument, default: False)
+
+| Guesses the reading frame of seq.
+
+| Returns the frame as 0, 1 or 2, or None if could not be guessed.
 
 fsize(filename)
 ***************
@@ -345,6 +354,17 @@ Example::
    print(dbl.mean([12,30,24]))
    22.0
 
+mut_per_read(seqs,parseq,fname,r)
+*********************************
+* seqs: dictionary {seq1:n1, seq2:n2, ...} where seq1, seq2: amino acid sequences, n1, n2: numbers of reads
+* parseq: parental sequence (must be same length as sequences in seqs)
+* fname: name of output file (can be None if no need to save results)
+* r: handle of report file (can be None if not used)
+
+| Creates a dictionary and csv file of distribution of number of mutations per read.
+
+| Returns a dictionary {n1:m1, n2:m2, ...} where n1, n2: number of mutations, m1, m2: number of reads.
+
 nt_match(nt1, nt2)
 ******************
 * nt1, nt2: nucleotide (a, g, c, t or ambiguous)
@@ -398,13 +418,19 @@ prefix(x)
 *********
 * x: list of file names
 
-| Returns a list of numbers, with each number being the suggested slice (from left end) of the corresponding file name to be used as a prefix.
+| Returns a list of unique prefixes corresponding to the file names.
 Example::
 
    import dmbiolib as dbl
    x=['P0-left_L4_2.fq.gz', 'P0-right_L4_2.fq.gz', 'P1-left_L4_2.fq.gz', 'P1-right_L4_2.fq.gz', 'P2-left_L4_2.fq.gz', 'P2-right_L4_2.fq.gz']
    print(dbl.prefix(x))
-   [7, 8, 7, 8, 7, 8]
+   ['P0-left', 'P0-right', 'P1-left', 'P1-right', 'P2-left', 'P2-right']
+
+prod(x)
+*******
+* x: list or tuple of numbers
+
+| Returns the product of all numbers in x
 
 progress_check(c,show,text)
 ***************************
@@ -454,9 +480,36 @@ Example::
 
 rfile_create(filename)
 ************************
+* filename: name of the read file to be created
+
+| Creates a read file (either uncompressed or gzipped if .gz suffix is used) and returns the file handle.
+
+rfile_open(filename)
+********************
 * filename: name of the read file to be opened
 
 | Opens a read file (either uncompressed or gzipped) and returns the file handle.
+
+seq_clust_card_dist(seqs,fname,r)
+*********************************
+* seqs: either a list [n1, n2, ...] or a dictionary {seq1:n1, seq2:n2, ...} where seq1, seq2: amino acid sequences, n1, n2: numbers of reads
+* fname: name of output file (can be None if no need to save results)
+* r: handle of report file (can be None if not used)
+
+| Creates a dictionary and csv file of sequence cluster cardinality distribution.
+
+| Returns a dictionary {n1:f1, n2:f2, ...} where n1, n2: cardinality, f1, f2: fraction of sequences.
+
+seq_write(fname,top,seqs,dic,descr,r)
+*************************************
+* fname: name of file to be created
+* top: string to be added to top of file
+* seqs: list of sequences (or None)
+* dic: dictionary of sequences with their read numbers {seq1:n1, seq2:n2, ...} (or None)
+* descr: description to be included in message informing of task completion
+* r: handle of report file (can be None if not used)
+
+| Writes the sequences to a file, with an optional header string. Sequences can be either from a list or from a dictionary and are followed by read numbers if present in the dictionary.
 
 shortest_probe(seqs,lim,host,t)
 *******************************
@@ -466,6 +519,16 @@ shortest_probe(seqs,lim,host,t)
 * t: description
 
 | Returns shortest probe size allowing to identify all sequences and with probe sequence not present in the host genome.
+
+size_dist(seqs,fname,r)
+***********************
+* seqs: dictionary {seq1:n1, seq2:n2, ...} where seq1, seq2: amino acid sequences, n1, n2: numbers of reads
+* fname: name of output file (can be None if no need to save results)
+* r: handle of report file (can be None if not used)
+
+| Creates a distribution of sequence lengths as a dictionary and a csv file.
+
+| Returns a list of lengths (sorted by read numbers) and a dictionary of lengths and numbers of reads {l1:n1, l2:n2, ...} (l1, l2: sequence lengths, n1, n2: numbers of reads).
 
 sortfiles(l,str)
 ****************
