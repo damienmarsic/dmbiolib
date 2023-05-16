@@ -39,8 +39,9 @@ Example::
 Latest news
 ===========
 
-| 2023-05-16: update to 0.4.0. Improved conf_start, conf_end, cvs_write, prefix. Added aa_dist, detect_vr, findall, frame, mut_per_read, prod, seq_clust_card_dist, seq_write, size_dist.
-| 2023-05-16: update to 0.4.1. Minor fixes.
+| **2023-05-16**: update to 0.4.1. Minor fixes.
+
+| **2023-05-16**: update to 0.4.0. Improved conf_start, conf_end, cvs_write, prefix. Added aa_dist, detect_vr, findall, frame, mut_per_read, prod, seq_clust_card_dist, seq_write, size_dist.
 
 
 Functions
