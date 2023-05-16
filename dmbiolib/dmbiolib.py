@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__='0.4.1'
+__version__='0.4.2'
 last_update='2023-05-16'
 author='Damien Marsic, damien.marsic@aliyun.com'
 license='GNU General Public v3 (GPLv3)'
@@ -402,7 +402,7 @@ def find_read_files():
         x=y[i]
         if a and '*' in x:
             x=y[i].replace('*',a)+' '+y[i].replace('*',b)
-        y[i]=y[i][:z[i]]+' '+x
+        y[i]=z[i]+' '+x
     return sortfiles(y,' ')
 
 def findall(probe,seq,start,end,overlap=False):
