@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-__version__='0.4.2'
-last_update='2023-05-16'
+__version__='0.4.3'
+last_update='2023-05-17'
 author='Damien Marsic, damien.marsic@aliyun.com'
 license='GNU General Public v3 (GPLv3)'
 docs='https://dmbiolib.readthedocs.io'
@@ -521,7 +521,7 @@ def getread(f,y,counter):
             if z==1:
                 seq=l.lower()
             z+=1
-    if seq and counter:
+    if seq:
         counter+=1
     return seq,f,counter,name
 
